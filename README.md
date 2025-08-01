@@ -6,9 +6,7 @@
 
 ## What is this?
 
-A Nextflow pipeline for calling somatic CNVs from tumor/normal pairs. Supports Illumina, PacBio, and ONT data (in theory - ONT is still experimental). 
-
-Started this because I needed something that could handle multiple platforms and the existing pipelines were either too rigid or kept breaking.
+A Nextflow pipeline for calling somatic CNVs from tumor/normal pairs. Supports Illumina, PacBio, and ONT data. 
 
 ## What it does
 
