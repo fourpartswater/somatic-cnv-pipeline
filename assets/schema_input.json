@@ -1,0 +1,109 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "https://raw.githubusercontent.com/fourpartswater/somatic-cnv-pipeline/master/assets/schema_input.json",
+    "title": "Somatic CNV Pipeline samplesheet schema",
+    "description": "Schema for validating the samplesheet CSV input",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "required": ["sample", "platform", "datatype", "tumor_fastq1"],
+        "properties": {
+            "sample": {
+                "type": "string",
+                "pattern": "^[a-zA-Z0-9_-]+$",
+                "errorMessage": "Sample name must contain only alphanumeric characters, underscores, and hyphens",
+                "meta": ["id"]
+            },
+            "patient": {
+                "type": "string",
+                "pattern": "^[a-zA-Z0-9_-]*$",
+                "errorMessage": "Patient ID must contain only alphanumeric characters, underscores, and hyphens",
+                "meta": ["patient"]
+            },
+            "tumor_fastq1": {
+                "type": "string",
+                "pattern": "^\\S+\\.(fastq|fq)(\\.gz)?$",
+                "errorMessage": "Tumor FASTQ1 file must have .fastq, .fq, .fastq.gz, or .fq.gz extension",
+                "format": "file-path",
+                "exists": true
+            },
+            "tumor_fastq2": {
+                "type": "string",
+                "pattern": "^\\S*\\.(fastq|fq)(\\.gz)?$",
+                "errorMessage": "Tumor FASTQ2 file must have .fastq, .fq, .fastq.gz, or .fq.gz extension",
+                "format": "file-path",
+                "exists": true,
+                "dependentRequired": ["tumor_fastq1"]
+            },
+            "normal_fastq1": {
+                "type": "string",
+                "pattern": "^\\S*\\.(fastq|fq)(\\.gz)?$",
+                "errorMessage": "Normal FASTQ1 file must have .fastq, .fq, .fastq.gz, or .fq.gz extension",
+                "format": "file-path",
+                "exists": true
+            },
+            "normal_fastq2": {
+                "type": "string",
+                "pattern": "^\\S*\\.(fastq|fq)(\\.gz)?$",
+                "errorMessage": "Normal FASTQ2 file must have .fastq, .fq, .fastq.gz, or .fq.gz extension",
+                "format": "file-path",
+                "exists": true,
+                "dependentRequired": ["normal_fastq1"]
+            },
+            "platform": {
+                "type": "string",
+                "enum": ["illumina", "pacbio", "ont"],
+                "errorMessage": "Platform must be one of: illumina, pacbio, ont",
+                "meta": ["platform"]
+            },
+            "datatype": {
+                "type": "string",
+                "enum": ["dna", "rna"],
+                "errorMessage": "Datatype must be either: dna or rna",
+                "meta": ["datatype"]
+            }
+        },
+        "allOf": [
+            {
+                "if": {
+                    "properties": {
+                        "platform": {
+                            "const": "illumina"
+                        }
+                    }
+                },
+                "then": {
+                    "properties": {
+                        "tumor_fastq2": {
+                            "description": "Optional for Illumina paired-end sequencing"
+                        },
+                        "normal_fastq2": {
+                            "description": "Optional for Illumina paired-end sequencing"
+                        }
+                    }
+                }
+            },
+            {
+                "if": {
+                    "properties": {
+                        "platform": {
+                            "enum": ["pacbio", "ont"]
+                        }
+                    }
+                },
+                "then": {
+                    "properties": {
+                        "tumor_fastq2": {
+                            "const": "",
+                            "errorMessage": "Long-read platforms (PacBio/ONT) should not have paired-end files"
+                        },
+                        "normal_fastq2": {
+                            "const": "",
+                            "errorMessage": "Long-read platforms (PacBio/ONT) should not have paired-end files"
+                        }
+                    }
+                }
+            }
+        ]
+    }
+}

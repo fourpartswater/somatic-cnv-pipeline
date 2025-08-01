@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  nextflow:
+    image: nextflow/nextflow:23.04.0
+    volumes:
+      - .:/workspace
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ~/.nextflow:/root/.nextflow
+    working_dir: /workspace
+    environment:
+      - NXF_WORK=/workspace/work
+      - NXF_OPTS=-Xms1g -Xmx4g
+    command: run main.nf -profile docker,test
+
+  # Local MinIO for S3-compatible storage
+  minio:
+    image: minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+
+  # Create MinIO buckets
+  mc:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      sleep 10;
+      mc alias set myminio http://minio:9000 minioadmin minioadmin;
+      mc mb myminio/pipeline-inputs || true;
+      mc mb myminio/pipeline-outputs || true;
+      mc mb myminio/pipeline-work || true;
+      exit 0;
+      "
+
+volumes:
+  minio_data:

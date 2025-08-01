@@ -1,0 +1,4 @@
+sample,patient,tumor_fastq1,tumor_fastq2,normal_fastq1,normal_fastq2,platform,datatype
+TCGA_001,PATIENT_001,s3://nf-core-awsmegatests/viralrecon/input_data/MT192765.1_R1.fastq.gz,s3://nf-core-awsmegatests/viralrecon/input_data/MT192765.1_R2.fastq.gz,s3://nf-core-awsmegatests/viralrecon/input_data/MT192759.1_R1.fastq.gz,s3://nf-core-awsmegatests/viralrecon/input_data/MT192759.1_R2.fastq.gz,illumina,dna
+TCGA_002,PATIENT_002,s3://nf-core-awsmegatests/viralrecon/input_data/MT192765.1_R1.fastq.gz,,s3://nf-core-awsmegatests/viralrecon/input_data/MT192759.1_R1.fastq.gz,,pacbio,dna
+TCGA_003,PATIENT_003,s3://nf-core-awsmegatests/viralrecon/input_data/MT192765.1_R1.fastq.gz,s3://nf-core-awsmegatests/viralrecon/input_data/MT192765.1_R2.fastq.gz,,,illumina,rna

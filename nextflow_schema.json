@@ -1,0 +1,260 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "https://raw.githubusercontent.com/fourpartswater/somatic-cnv-pipeline/master/nextflow_schema.json",
+    "title": "Somatic CNV Pipeline schema",
+    "description": "Schema for validating pipeline parameters",
+    "type": "object",
+    "definitions": {
+        "input_output_options": {
+            "title": "Input/output options",
+            "type": "object",
+            "description": "Define where the pipeline should find input data and save output data",
+            "required": ["input", "outdir"],
+            "properties": {
+                "input": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Path to comma-separated file containing information about the samples in the experiment",
+                    "help_text": "You will need to create a design file with information about the samples in your experiment before running the pipeline. Use the samplesheet format described in the documentation.",
+                    "fa_icon": "fas fa-file-csv"
+                },
+                "outdir": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "description": "The output directory where the results will be saved",
+                    "default": "./results",
+                    "fa_icon": "fas fa-folder-open"
+                },
+                "email": {
+                    "type": "string",
+                    "description": "Email address for completion summary",
+                    "fa_icon": "fas fa-envelope",
+                    "help_text": "Set this parameter to your e-mail address to get a summary e-mail with details of the run sent to you when the workflow exits.",
+                    "pattern": "^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$"
+                },
+                "email_on_fail": {
+                    "type": "string",
+                    "description": "Email address for completion summary, only when pipeline fails",
+                    "fa_icon": "fas fa-exclamation-triangle",
+                    "pattern": "^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$"
+                }
+            }
+        },
+        "reference_genome_options": {
+            "title": "Reference genome options",
+            "type": "object",
+            "description": "Reference genome files required for the pipeline",
+            "required": ["reference", "gtf"],
+            "properties": {
+                "genome": {
+                    "type": "string",
+                    "description": "Name of iGenomes reference",
+                    "fa_icon": "fas fa-book",
+                    "help_text": "If using a reference genome configured in the pipeline, use this parameter to select it."
+                },
+                "reference": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Path to FASTA reference genome file",
+                    "pattern": "^\\S+\\.fa(sta)?(\\.gz)?$",
+                    "fa_icon": "fas fa-dna"
+                },
+                "gtf": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Path to GTF gene annotation file",
+                    "pattern": "^\\S+\\.gtf(\\.gz)?$",
+                    "fa_icon": "fas fa-file-alt"
+                },
+                "igenomes_base": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "description": "Directory / URL base for iGenomes references",
+                    "default": "s3://ngi-igenomes/igenomes",
+                    "fa_icon": "fas fa-cloud-download-alt"
+                },
+                "igenomes_ignore": {
+                    "type": "boolean",
+                    "description": "Do not load the iGenomes reference config",
+                    "fa_icon": "fas fa-ban"
+                }
+            }
+        },
+        "variant_calling_options": {
+            "title": "CNV calling options",
+            "type": "object",
+            "description": "Options for CNV detection and filtering",
+            "properties": {
+                "intervals": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Path to BED file for targeted regions",
+                    "pattern": "^\\S+\\.bed(\\.gz)?$",
+                    "fa_icon": "fas fa-bullseye"
+                },
+                "pon": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Path to panel of normals file",
+                    "fa_icon": "fas fa-users"
+                },
+                "germline_resource": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Path to germline variant resource VCF",
+                    "pattern": "^\\S+\\.vcf(\\.gz)?$"
+                },
+                "known_sites": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Path to known variant sites VCF",
+                    "pattern": "^\\S+\\.vcf(\\.gz)?$"
+                },
+                "vntr_bed": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Path to VNTR regions BED file for Severus",
+                    "pattern": "^\\S+\\.bed(\\.gz)?$"
+                }
+            }
+        },
+        "aws_batch_options": {
+            "title": "AWS Batch options",
+            "type": "object",
+            "description": "Options for running on AWS Batch",
+            "properties": {
+                "awsqueue": {
+                    "type": "string",
+                    "description": "The AWS Batch job queue to use",
+                    "fa_icon": "fas fa-server"
+                },
+                "awsregion": {
+                    "type": "string",
+                    "description": "The AWS region to run in",
+                    "default": "us-east-1",
+                    "fa_icon": "fas fa-globe-americas"
+                },
+                "awscli": {
+                    "type": "string",
+                    "description": "Path to AWS CLI tool",
+                    "default": "/usr/local/aws-cli/bin/aws"
+                }
+            }
+        },
+        "process_skipping_options": {
+            "title": "Process skipping options",
+            "type": "object",
+            "description": "Skip various steps in the pipeline",
+            "properties": {
+                "skip_fastqc": {
+                    "type": "boolean",
+                    "description": "Skip FastQC quality control",
+                    "fa_icon": "fas fa-fast-forward"
+                },
+                "skip_multiqc": {
+                    "type": "boolean",
+                    "description": "Skip MultiQC report generation",
+                    "fa_icon": "fas fa-fast-forward"
+                },
+                "skip_markduplicates": {
+                    "type": "boolean",
+                    "description": "Skip duplicate marking for Illumina data",
+                    "fa_icon": "fas fa-fast-forward"
+                }
+            }
+        },
+        "max_job_request_options": {
+            "title": "Max job request options",
+            "type": "object",
+            "description": "Set the top limit for requested resources for any single job",
+            "properties": {
+                "max_cpus": {
+                    "type": "integer",
+                    "description": "Maximum number of CPUs that can be requested for any single job",
+                    "default": 16,
+                    "fa_icon": "fas fa-microchip",
+                    "minimum": 1
+                },
+                "max_memory": {
+                    "type": "string",
+                    "description": "Maximum amount of memory that can be requested for any single job",
+                    "default": "128.GB",
+                    "fa_icon": "fas fa-memory",
+                    "pattern": "^\\d+(\\.\\d+)?\\.?\\s*(K|M|G|T)?B$"
+                },
+                "max_time": {
+                    "type": "string",
+                    "description": "Maximum amount of time that can be requested for any single job",
+                    "default": "240.h",
+                    "fa_icon": "fas fa-clock",
+                    "pattern": "^(\\d+\\.?\\d*h?d?)|(\\d+\\.?\\d*m?)|(\\d+\\.?\\d*s?)$"
+                }
+            }
+        },
+        "generic_options": {
+            "title": "Generic options",
+            "type": "object",
+            "description": "Less common options for the pipeline",
+            "properties": {
+                "help": {
+                    "type": "boolean",
+                    "description": "Display help text",
+                    "fa_icon": "fas fa-question-circle"
+                },
+                "version": {
+                    "type": "boolean",
+                    "description": "Display version information",
+                    "fa_icon": "fas fa-info-circle"
+                },
+                "publish_dir_mode": {
+                    "type": "string",
+                    "default": "copy",
+                    "description": "Method used to save pipeline results to output directory",
+                    "help_text": "The Nextflow `publishDir` option specifies which intermediate files should be saved to the output directory.",
+                    "fa_icon": "fas fa-copy",
+                    "enum": ["symlink", "rellink", "link", "copy", "copyNoFollow", "move"]
+                },
+                "validate_params": {
+                    "type": "boolean",
+                    "description": "Boolean whether to validate parameters against the schema at runtime",
+                    "default": true,
+                    "fa_icon": "fas fa-check-square"
+                },
+                "monochrome_logs": {
+                    "type": "boolean",
+                    "description": "Do not use colored log outputs",
+                    "fa_icon": "fas fa-palette"
+                },
+                "hook_url": {
+                    "type": "string",
+                    "description": "Incoming webhook URL for messaging service",
+                    "fa_icon": "fas fa-people-group",
+                    "help_text": "Incoming webhook URL for messaging service. Currently, only MS Teams is supported."
+                }
+            }
+        }
+    },
+    "allOf": [
+        {
+            "$ref": "#/definitions/input_output_options"
+        },
+        {
+            "$ref": "#/definitions/reference_genome_options"
+        },
+        {
+            "$ref": "#/definitions/variant_calling_options"
+        },
+        {
+            "$ref": "#/definitions/aws_batch_options"
+        },
+        {
+            "$ref": "#/definitions/process_skipping_options"
+        },
+        {
+            "$ref": "#/definitions/max_job_request_options"
+        },
+        {
+            "$ref": "#/definitions/generic_options"
+        }
+    ]
+}
